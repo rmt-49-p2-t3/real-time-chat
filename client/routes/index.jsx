@@ -2,6 +2,7 @@ import NavbarChat from "@/components/NavbarChat";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
 import Chat from "@/pages/Chat/Chat";
+import { SocketProvider } from '@/context/SocketContext';
 
 import {
     createBrowserRouter,
@@ -55,7 +56,9 @@ const router = createBrowserRouter([
 
 const App = () => {
     return (
-        <RouterProvider router={router} />
+        <SocketProvider>
+            <RouterProvider router={router} />
+        </SocketProvider>
     );
 }
 
