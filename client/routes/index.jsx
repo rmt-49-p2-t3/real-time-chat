@@ -1,5 +1,7 @@
+import NavbarChat from "@/components/NavbarChat";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
+import Chat from "@/pages/Chat/Chat";
 
 import {
     createBrowserRouter,
@@ -12,6 +14,7 @@ const router = createBrowserRouter([
     {
         element: (
             <>
+                <NavbarChat />
                 <Outlet />
             </>
         ),
@@ -24,7 +27,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <h1>HOME</h1>,
+                element: <Chat />,
             },
         ]
     },
