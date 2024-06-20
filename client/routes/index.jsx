@@ -9,44 +9,44 @@ import {
 } from "react-router-dom";
 
 const router = createBrowserRouter([
-    // {
-    //     element: (
-    //         <>
-    //             <Outlet />
-    //         </>
-    //     ),
-    //     loader: () => {
-    //         if (!localStorage.getItem('access_token')) {
-    //             return redirect('/login');
-    //         }
-    //         return null;
-    //     },
-    //     children: [
-    //         {
-    //             path: "/",
-    //             element: <Main />,
-    //         },
-    //     ]
-    // },
+    {
+        element: (
+            <>
+                <Outlet />
+            </>
+        ),
+        loader: () => {
+            if (!localStorage.getItem('access_token')) {
+                return redirect('/login');
+            }
+            return null;
+        },
+        children: [
+            {
+                path: "/",
+                element: <h1>HOME</h1>,
+            },
+        ]
+    },
     {
         path: "/login",
         element: <Login />,
-        // loader: () => {
-        //     if (localStorage.getItem('access_token')) {
-        //         return redirect('/');
-        //     }
-        //     return null;
-        // }
+        loader: () => {
+            if (localStorage.getItem('access_token')) {
+                return redirect('/');
+            }
+            return null;
+        }
     },
     {
         path: "/register",
         element: <Register />,
-        // loader: () => {
-        //     if (localStorage.getItem('access_token')) {
-        //         return redirect('/');
-        //     }
-        //     return null;
-        // }
+        loader: () => {
+            if (localStorage.getItem('access_token')) {
+                return redirect('/');
+            }
+            return null;
+        }
     },
 ]);
 
