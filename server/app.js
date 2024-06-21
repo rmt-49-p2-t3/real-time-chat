@@ -23,7 +23,7 @@ app.use(errorHandlers);
 const httpServer = createServer(app);
 const io = require('socket.io')(httpServer, {
     cors: {
-        origin: "*",  // Allow all origins
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
@@ -38,7 +38,7 @@ io.on("connection", async (socket) => {
     onlineUsers.push(socket.id);
     io.emit('onlineUsers', onlineUsers);
 
-    // Fetch users and emit 'user' event
+
     const userOn = await GetController.fetchUsers();
     io.emit('user', users);
     if (socket.handshake.auth.access_token) {
