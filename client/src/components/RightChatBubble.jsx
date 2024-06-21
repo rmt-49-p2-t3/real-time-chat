@@ -1,7 +1,7 @@
-export default function RightChatBubble() {
+export default function RightChatBubble(props) {
     return (
         <div className="chat chat-end">
-            <div className="chat-bubble">You underestimate my power!</div>
+            <div className="chat-bubble">{props.messages}</div>
         </div>
     )
 }
