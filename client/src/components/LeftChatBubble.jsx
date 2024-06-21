@@ -1,8 +1,8 @@
-export default function LeftChatBubble() {
+export default function LeftChatBubble(props) {
     return (
         <div className="flex-col w-1/4 p-2">
             <div className="chat chat-start">
-                <div className="chat-bubble">It's over Anakin, <br />I have the high ground.</div>
+                <div className="chat-bubble">{props.messages}</div>
             </div>
         </div>
     )

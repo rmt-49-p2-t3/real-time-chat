@@ -27,27 +27,43 @@ const io = require('socket.io')(httpServer, {
         methods: ["GET", "POST"]
     }
 });
-let onlineUsers = [];
-io.on('connection', async (socket) => {
-    console.log(`New client connected with id ${socket.id}`);
+let users = []
+let onlineUsers = []
+
+io.on("connection", async (socket) => {
+    console.log('New User connected');
+    console.log(socket);
+    console.log("access_token: ", socket.handshake.auth.access_token);
     GetController.setIo(io);
     onlineUsers.push(socket.id);
-
-    // Emit the 'onlineUsers' event with the list of online users
     io.emit('onlineUsers', onlineUsers);
 
     // Fetch users and emit 'user' event
-    const users = await GetController.fetchUsers();
+    const userOn = await GetController.fetchUsers();
     io.emit('user', users);
+    if (socket.handshake.auth.access_token) {
+        users.push({
+            id: socket.id,
+            access_token: socket.handshake.auth.access_token
+        });
+        socket.broadcast.emit("users:online", users)
+    }
+    socket.emit("message", "Welcome to the socket server" + socket.id)
 
-    socket.on('disconnect', () => {
-        console.log(`Client with id ${socket.id} disconnected`);
 
-        // Remove the disconnected user from the onlineUsers array
-        onlineUsers = onlineUsers.filter(id => id !== socket.id);
+    socket.on("count:update", (newCount) => {
+        console.log({ newCount });
+        socket.broadcast.emit("count:info", newCount)
 
-        // Emit the 'onlineUsers' event with the updated list of online users
-        io.emit('onlineUsers', onlineUsers);
+    });
+
+    socket.on("message:new", (newMessage) => {
+        socket.broadcast.emit("messages:info", newMessage)
+    });
+
+    socket.on("disconnect", () => {
+        users = users.filter(item => item.id !== socket.id)
+        socket.broadcast.emit("users:online", users)
     });
 });
 

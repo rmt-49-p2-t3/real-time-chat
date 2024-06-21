@@ -4,9 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SocketContext } from '@/context/SocketContext';
 import LeftChatBubble from "@/components/LeftChatBubble";
 import RightChatBubble from "@/components/RightChatBubble";
+import socketAPI from "@/socket";
 
 export default function Chat() {
     const { onlineUsers, socket } = useContext(SocketContext);
+    const [users, setUsers] = useState([])
+    const [newMessage, setNewMessage] = useState("");
+    const [messages, setMessages] = useState([])
+
     const [selectedUser, setSelectedUser] = useState(null);
     useEffect(() => {
         const firstOnlineUser = onlineUsers.find(user => user === socket.id);
@@ -14,8 +19,45 @@ export default function Chat() {
             setSelectedUser(firstOnlineUser);
         }
     }, [onlineUsers, socket]);
-    console.log(onlineUsers)
-    console.log(socket)
+
+    useEffect(() => {
+        socketAPI.auth = {
+            access_token: localStorage.access_token
+        }
+        socketAPI.disconnect().connect()
+    }, []);
+
+    useEffect(() => {
+        socketAPI.on("users:online", (newUsers) => {
+            setUsers(newUsers);
+        });
+
+        socketAPI.on("messages:info", (message) => {
+            setMessages((prevMessages) => {
+                return [...prevMessages, message]
+            });
+        });
+
+        return () => {
+            socketAPI.off("users:online")
+            socketAPI.off("messages:info")
+        }
+    }, []);
+
+    const handleSend = (e) => {
+        e.preventDefault();
+        if (newMessage.trim() !== "") {
+            socketAPI.emit("message:new", {
+                from: localStorage.access_token,
+                message: newMessage
+            });
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { from: localStorage.access_token, message: newMessage }
+            ]);
+            setNewMessage("");
+        }
+    };
     return (
         <ChatLayout>
             <div className="flex-col w-1/4 p-2">
@@ -42,12 +84,20 @@ export default function Chat() {
                     </div>
                 </div>
                 <div className="w-full p-6 overflow-y-auto overflow-x-hidden flex-grow flex flex-col">
-                    <LeftChatBubble />
-                    <RightChatBubble />
+                    {messages.map((el) => {
+                        return el.from !== localStorage.access_token ?
+                            (<LeftChatBubble
+                                messages={el.message} />)
+                            :
+                            (<RightChatBubble messages={el.message} />)
+                    })}
                 </div>
-                <div className="p-2 flex justify-between w-full items-center gap-2">
-                    <input type="text" className="w-full p-2 border rounded-lg" />
-                    <button className="p-2 text-white rounded-lg">Send</button>
+                <div className="p-2 flex-col justify-between w-full items-center gap-2">
+                    <form onSubmit={handleSend}>
+                        <input type="text" className="w-4/5 p-2 border rounded-lg" onChange={(e) => setNewMessage(e.target.value)}
+                            value={newMessage} />
+                        <button className="p-2 w-1/5 text-white rounded-lg">Send</button>
+                    </form>
                 </div>
             </div>
         </ChatLayout>
